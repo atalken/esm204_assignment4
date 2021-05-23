@@ -12,15 +12,75 @@ knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
 library(here)
 library(janitor)
+library(patchwork)
+```
+
+```{r}
+# Read in data:
+damages <- read.csv(here("damages.csv"))
+warming <- read.csv(here("warming.csv"))
+
+# Remove scientific notation
+# options(scipen = 999)
 ```
 
 ## Question 1
 
 ```{r}
+### Estimate quadratic damage function
 
+# Visualize points:
+ggplot(data = damages, aes(x = warming, y = damages)) +
+  geom_point()
+
+# Create a new data frame for warming^2:
+damages$warming2 <- damages$warming^2 
+
+# Fit quadratic regression model:
+quadratic.model <-lm(damages ~ warming + warming2, data = damages)
+
+# View model summary:
+summary(quadratic.model)
+```
+
+**Estimated damages quadratic model:**
+$$y = (1.9e+13)x^2 - (3e+12)x$$
+
+```{r}
+### Plot estimated damage
+x = damages$warming
+a = 1.959e+13
+b = -3.019e+12
+y = a * x^2 + b * x
+
+damages_function <- plot(x,y, type = "l")
+
+ggplot(data = damages, aes(x = warming, y = damages)) +
+  geom_point() +
+  geom_smooth(formula = damages_function)
 ```
 
 ## Question 2
+
+1) Plot damages over time without pulse
+
+```{r}
+
+```
+
+2) Plot damages over time with the pulse
+
+```{r}
+
+```
+
+3) Difference in damages over time that arise from pulse
+
+```{r}
+
+```
+
+4) Difference in damages over time from the pulse per ton of CO2
 
 ```{r}
 

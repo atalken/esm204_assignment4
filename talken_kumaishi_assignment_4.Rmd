@@ -1,6 +1,6 @@
 ---
 title: "ESM 204 Assignment 4"
-author: "Anna Talken & Grace Kumaishi"
+author: "Anna Talken, Sydney Rilum & Grace Kumaishi"
 date: "5/18/2021"
 output: 
   html_document:
@@ -44,7 +44,7 @@ summary(quadratic.model)
 ```
 
 **Estimated damages quadratic model:**
-$$y = (1.9e+13)x^2 - (3e+12)x$$
+$$y = (1.96e+13)x^2 - (3.02e+12)x$$
 
 ```{r}
 ### Plot estimated damage
@@ -57,7 +57,11 @@ damages_function <- plot(x,y, type = "l")
 
 ggplot(data = damages, aes(x = warming, y = damages)) +
   geom_point() +
-  geom_smooth(formula = damages_function)
+  geom_smooth(formula = damages_function)+
+  theme_minimal()+
+  labs(title = "Predicted damages based on increasing global mean temperatures",
+       x = "Warming (degrees C)",
+       y = "Damages ($)")
 ```
 
 ## Question 2
@@ -66,24 +70,64 @@ ggplot(data = damages, aes(x = warming, y = damages)) +
 
 ```{r}
 
+# Create new function to calculate damages based on damages quadratic equation (didn't actually need this....)
+damages <- function(w, model){
+  d <- model$coefficients[[3]]*w^2 + model$coefficients[[2]]*w
+  return(d)
+}
+
+# cost of damages based on baseline climate scenario
+
+warming <- warming %>% 
+  mutate(damages_baseline = a*warming_baseline^2 + b*warming_baseline,
+         damages_pulse = a*warming_pulse^2 + b*warming_pulse,
+         dif_pulse = damages_pulse - damages_baseline,
+         dif_pulse_perton = dif_pulse/35000000000)
+
+ggplot(data = warming, aes(x = warming_baseline, y = damages_baseline)) +
+  geom_point() +
+  geom_line() +
+  theme_minimal() +
+  labs(title = "Future damages based on baseline warming estimates",
+       x = "Baseline warming (degrees C)",
+       y = "Damages ($)")
+
 ```
 
 2) Plot damages over time with the pulse
 
 ```{r}
-
+ggplot(data = warming, aes(x = warming_pulse, y = damages_pulse)) +
+  geom_point() +
+  geom_line() +
+  theme_minimal() +
+  labs(title = "Future damages based on warming estimates with a pulse",
+       x = "Warming with pulse (degrees C)",
+       y = "Damages ($)")
 ```
 
 3) Difference in damages over time that arise from pulse
 
 ```{r}
-
+ggplot(data = warming, aes(x = X, y = dif_pulse)) +
+  geom_point() +
+  geom_line() +
+  theme_minimal() +
+  labs(title = "Differences in future damages with a pulse",
+       x = "Year",
+       y = "Difference in damages ($)")
 ```
 
 4) Difference in damages over time from the pulse per ton of CO2
 
 ```{r}
-
+ggplot(data = warming, aes(x = X, y = dif_pulse_perton)) +
+  geom_point() +
+  geom_line() +
+  theme_minimal() +
+  labs(title = "Differences in future damages with a pulse per ton",
+       x = "Year",
+       y = "Difference in damages per ton ($)")
 ```
 
 ## Question 3

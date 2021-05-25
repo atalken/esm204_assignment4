@@ -207,38 +207,64 @@ The Ramsey Rule was used to find a discount rate of 0.021, and an associated SCC
 ### What is the expected present value of damages up to 2100 under Policy A?
 
 ```{r}
-# Create data series with policy A scenarios
-waming <- warming %>% 
-  mutate(warming_baseline_x1.5 = warming_baseline*1.5) #%>% 
-#  mutate(damages_baseline_x1.5 = damages_baseline*1.5) ## not sure on this
-# I think we need to use our estimated damages function from Q1 to find new damages with new warming x1.5 data
+# Create a damages model to convert warming data
+damages_model <- function(w){
+  d <- quadratic.model$coefficients[["warming2"]]*w^2 + quadratic.model$coefficients[["warming"]]*w + 0
+  return(d)
+}
 
+# Create data series for policy A new scenario (warming each year will be 1.5 times that in the “baseline” dataset)
+warming <- warming %>% 
+  mutate(warming_baseline_x1.5 = warming_baseline*1.5) %>% # new warming data
+  mutate(damages_baseline_x1.5 = damages_model(warming_baseline_x1.5)) # new damages data
 
-# Calculate PV
-# PV_A_baseline <-
-# PV_A_baseline_x1.5 <- 
+# Calculate PV for each of policy A's scenarios with a discount rate of 2%
+# Vt/(1+r)^t
 
-# Calculate expected value of damages for policy A
-# policy_A_expected_value <- (PV_A_baseline * 0.5) + (PV_A_baseline_x1.5 * 0.5)
+# PV outcome 1 (warming will occur as in the “baseline”)
+PV_A_baseline <- sum((warming$damages_baseline)/((1+0.02)^warming$X))
+PV_A_baseline
+
+# PV outcome 2 (warming each year will be 1.5 times that in the “baseline” dataset)
+PV_A_baseline_x1.5 <- sum((warming$damages_baseline_x1.5)/((1+0.02)^warming$X))
+PV_A_baseline_x1.5
+
+# Calculate expected value of damages for policy A scenarios with probability 0.5 for each
+policy_A_expected_value <- (PV_A_baseline*0.5) + (PV_A_baseline_x1.5*0.5)
+policy_A_expected_value
 
 ```
 
-Under Policy A, the expected present value of damages up to 2100 is ....
+Under Policy A, the expected present value of damages up to 2100 is $3.04e+15.
 
 
 ### What is the expected present value of damages up to 2100 under Policy B?
 
 ```{r}
+# Create data series for policy B scenario (Warming will continue until 2050 as in the “baseline” dataset, and then will stabilize at 1.29 degrees and stay that way forever)
+warming <- warming %>% 
+  mutate(warming_baseline_2050 = case_when(
+    year > 2050 ~ 1.29,
+    TRUE ~ warming_baseline
+  )) %>% 
+  mutate(damages_baseline_2050 = damages_model(warming_baseline_2050))
+
+# Calculate PV with a discount rate of 2%
+# Note: Policy B only has one outcome, therefore PV = Expected value
+policy_B_expected_value <- sum((warming$damages_baseline_2050)/((1+0.02)^warming$X))
+policy_B_expected_value
 
 ```
 
-Under Policy B, the expected present value of damages up to 2100 is ....
+Under Policy B, the expected present value of damages up to 2100 is $7.78e+14.
 
 
 ### If Policy A costs $0 and Policy B costs $X, how large could X be for it to still make economic sense to pursue Policy B instead of A?
 
 ```{r}
-
+# not sure.....
+X = policy_A_expected_value - policy_B_expected_value
+X
 ```
 
 ### How would your answer change if society were risk averse? (Qualitative answer)

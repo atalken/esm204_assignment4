@@ -13,6 +13,7 @@ library(tidyverse)
 library(here)
 library(janitor)
 library(patchwork)
+library(FinCal)
 ```
 
 ```{r}
@@ -37,20 +38,20 @@ ggplot(data = damages, aes(x = warming, y = damages)) +
 damages$warming2 <- damages$warming^2 
 
 # Fit quadratic regression model:
-quadratic.model <-lm(damages ~ warming + warming2, data = damages)
+quadratic.model <-lm(damages ~ warming + warming2 + 0, data = damages)
 
 # View model summary:
 summary(quadratic.model)
 ```
 
 **Estimated damages quadratic model:**
-$$y = (1.96e+13)x^2 - (3.02e+12)x$$
+$$y = (1.94E13) x^2 - (1.03E12)x$$
 
 ```{r}
 ### Plot estimated damage
 x = damages$warming
 a = 1.959e+13
-b = -3.019e+12
+b = -1.03e+12
 y = a * x^2 + b * x
 
 damages_function <- plot(x,y, type = "l")
@@ -132,13 +133,63 @@ ggplot(data = warming, aes(x = X, y = dif_pulse_perton)) +
 
 ## Question 3
 
+# add two columns to the damages table: SCC at 2% discount rate and SCC at 3% discount rate
+# SCC using dif_pulse_perton
+# create range of discount rates (0 to 5)
+V0 = Vt / (1 + r)^t
+
 ```{r}
+#create vector with 5 different discount rates
+rate <- c(0.01, 0.02, 0.03, 0.04, 0.05)
+
+# Vt/(1+r)^t
+
+SCC <- c()
+for (i in 1:length(rate)) {
+    cost <- (warming$dif_pulse_perton)/(1 + rate[i])^(warming$X)
+    SCC[i] <- sum(cost)
+  }
+
+# create table with SCC for each discount rate
+SCC_table <- round(data.frame("discount_rates" = rate,
+                        "SCC" = SCC), 2)
+
+# graph discount rate vs. SCC
+ggplot(data = SCC_table, aes(x = rate,
+                             y = SCC)) +
+  geom_point() +
+  geom_line() +
+  theme_minimal()
 
 ```
 
 ## Question 4
 
 ```{r}
+#r = p +ng
+ramsey = 0.021
+
+#create vector with 5 different discount rates
+ramsey_rate <- c(0.01, 0.02, 0.03, 0.04, 0.05, ramsey)
+
+# Vt/(1+r)^t
+
+SCC_ramsey <- c()
+for (i in 1:length(ramsey_rate)) {
+    cost_ramsey <- (warming$dif_pulse_perton)/(1 + ramsey_rate[i])^(warming$X)
+    SCC_ramsey[i] <- sum(cost_ramsey)
+}
+
+SCC_table_ramsey <- data.frame("discount_rates" = ramsey_rate,
+                        "SCC" = SCC_ramsey)
+
+# graph ramsey discount rate vs. SCC
+ggplot(data = SCC_table, aes(x = rate,
+                             y = SCC)) +
+  geom_point() +
+  geom_line() +
+  geom_point(x = 0.021, y = 71.35061, color = "red", size = 3) +
+  theme_minimal()
 
 ```
 

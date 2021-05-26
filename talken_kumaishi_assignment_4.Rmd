@@ -42,17 +42,21 @@ quadratic.model <-lm(damages ~ warming + warming2 + 0, data = damages)
 $$y = (1.94e13) x^2 - (1.03e12)x$$
 
 ```{r fig.align = "center", warning=FALSE, message=FALSE}
+# Create a function to graph quadratic damages model
+damages_model <- function(w){
+  d <- quadratic.model$coefficients[["warming2"]]*w^2 + quadratic.model$coefficients[["warming"]]*w + 0
+  return(d)
+}
+
 ### Plot estimated damage:
 x = damages$warming
 a = 1.959e+13
 b = -1.03e+12
 y = a * x^2 + b * x
 
-damages_function <- plot(x,y, type = "l")
-
 ggplot(data = damages, aes(x = warming, y = damages)) +
   geom_point() +
-  geom_smooth(formula = damages_function, color = "darkred")+
+  stat_function(fun = damages_model, color = "darkred")+
   theme_minimal()+
   labs(title = "Predicted damages based on increasing global mean temperatures",
        x = "Warming (degrees C)",
@@ -206,12 +210,6 @@ The Ramsey Rule was used to find a discount rate of 0.021, and an associated SCC
 ### What is the expected present value of damages up to 2100 under Policy A?
 
 ```{r, warning=FALSE, message=FALSE}
-# Create a damages model to convert warming data
-damages_model <- function(w){
-  d <- quadratic.model$coefficients[["warming2"]]*w^2 + quadratic.model$coefficients[["warming"]]*w + 0
-  return(d)
-}
-
 # Create data series for policy A new scenario (warming each year will be 1.5 times that in the “baseline” dataset)
 warming <- warming %>% 
   mutate(warming_baseline_x1.5 = warming_baseline*1.5) %>% # new warming data
@@ -219,26 +217,30 @@ warming <- warming %>%
 
 # Calculate PV for each of policy A's scenarios with a discount rate of 2%
 # Vt/(1+r)^t
-
-# PV outcome 1 (warming will occur as in the “baseline”)
-PV_A_baseline <- sum((warming$damages_baseline)/((1+0.02)^warming$X))
-PV_A_baseline
-
-# PV outcome 2 (warming each year will be 1.5 times that in the “baseline” dataset)
-PV_A_baseline_x1.5 <- sum((warming$damages_baseline_x1.5)/((1+0.02)^warming$X))
-PV_A_baseline_x1.5
-
-# Calculate expected value of damages for policy A scenarios with probability 0.5 for each
-policy_A_expected_value <- (PV_A_baseline*0.5) + (PV_A_baseline_x1.5*0.5)
-policy_A_expected_value
-
 ```
 
-Under Policy A, the expected present value of damages up to 2100 is $3.04e+15.
+Present Value of Outcome 1 (warming will occur as in the “baseline”) is **$1.87e+15.**
+```{r}
+# PV outcome 1 (warming will occur as in the “baseline”)
+PV_A_baseline <- sum((warming$damages_baseline)/((1+0.02)^warming$X))
+```
+
+Present Value of Outcome 2 (warming each year will be 1.5 times that in the “baseline” dataset) is **$4.21e+15.**
+```{r}
+# PV outcome 2 (warming each year will be 1.5 times that in the “baseline” dataset)
+PV_A_baseline_x1.5 <- sum((warming$damages_baseline_x1.5)/((1+0.02)^warming$X))
+```
+
+Under Policy A, the expected present value of damages up to 2100 is **$3.04e+15.**
+```{r}
+# Calculate expected value of damages for policy A scenarios with probability 0.5 for each
+policy_A_expected_value <- (PV_A_baseline*0.5) + (PV_A_baseline_x1.5*0.5)
+```
 
 
 ### What is the expected present value of damages up to 2100 under Policy B?
 
+Under Policy B, the expected present value of damages up to 2100 is **$7.78e+14.**
 ```{r, warning=FALSE, message=FALSE}
 # Create data series for policy B scenario (Warming will continue until 2050 as in the “baseline” dataset, and then will stabilize at 1.29 degrees and stay that way forever)
 warming <- warming %>% 
@@ -251,25 +253,21 @@ warming <- warming %>%
 # Calculate PV with a discount rate of 2%
 # Note: Policy B only has one outcome, therefore PV = Expected value
 policy_B_expected_value <- sum((warming$damages_baseline_2050)/((1+0.02)^warming$X))
-policy_B_expected_value
 
 ```
-
-Under Policy B, the expected present value of damages up to 2100 is $7.78e+14.
 
 
 ### If Policy A costs $0 and Policy B costs $X, how large could X be for it to still make economic sense to pursue Policy B instead of A?
 
 ```{r, warning=FALSE, message=FALSE}
 X = policy_A_expected_value - policy_B_expected_value
-X
 ```
 
-X would have to be less than 2.26507e^15 in order for it to still make economic sense to pursue Policy B instead of Policy A.
+X would have to be less than **$2.26507e+15** in order for it to still make economic sense to pursue Policy B instead of Policy A.
 
-### How would your answer change if society were risk averse? (Qualitative answer)
+### How would your answer change if society were risk averse?
 
-If society was risk averse, then Policy B would be still be more attractive because the expected value of both scenarios under Policy A is the same. 
+If society was risk averse, then Policy B would be still be more attractive than Policy A because the expected value of Policy B is certain while the expected value of Policy A is uncertain (2 possible scenarios).
 
 
 

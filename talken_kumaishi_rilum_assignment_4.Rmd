@@ -65,7 +65,7 @@ ggplot(data = damages, aes(x = warming, y = damages)) +
 ```
 
 
-## Question 2
+## Question 2:
 
 ### 1) Plot damages over time without pulse:
 

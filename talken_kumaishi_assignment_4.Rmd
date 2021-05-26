@@ -5,6 +5,7 @@ date: "5/18/2021"
 output: 
   html_document:
     theme: paper
+    code_folding: hide
 ---
 
 ```{r setup, include=FALSE}
@@ -15,7 +16,7 @@ library(janitor)
 library(patchwork)
 ```
 
-```{r}
+```{r, warning=FALSE, message=FALSE}
 # Read in data:
 damages <- read.csv(here("damages.csv"))
 warming <- read.csv(here("warming.csv"))
@@ -24,7 +25,7 @@ warming <- read.csv(here("warming.csv"))
 ## Question 1:
 
 ### Estimate the quadratic damage function:
-```{r}
+```{r, warning=FALSE, message=FALSE}
 # Visualize points:
 # ggplot(data = damages, aes(x = warming, y = damages)) +
   # geom_point()
@@ -35,14 +36,12 @@ damages$warming2 <- damages$warming^2
 # Fit quadratic regression model:
 quadratic.model <-lm(damages ~ warming + warming2 + 0, data = damages)
 
-# View model summary:
-summary(quadratic.model)
 ```
 
 #### Estimated damages quadratic model:
 $$y = (1.94e13) x^2 - (1.03e12)x$$
 
-```{r fig.align = "center"}
+```{r fig.align = "center", warning=FALSE, message=FALSE}
 ### Plot estimated damage:
 x = damages$warming
 a = 1.959e+13
@@ -66,7 +65,7 @@ ggplot(data = damages, aes(x = warming, y = damages)) +
 
 ### 1) Plot damages over time without pulse:
 
-```{r fig.align = "center"}
+```{r fig.align = "center", warning=FALSE, message=FALSE}
 # Create new function to calculate damages based on damages quadratic equation (didn't actually need this....):
 damages <- function(w, model){
   d <- model$coefficients[[3]]*w^2 + model$coefficients[[2]]*w
@@ -93,7 +92,7 @@ ggplot(data = warming, aes(x = warming_baseline, y = damages_baseline)) +
 
 ### 2) Plot damages over time with the pulse:
 
-```{r fig.align = "center"}
+```{r fig.align = "center", warning=FALSE, message=FALSE}
 ggplot(data = warming, aes(x = warming_pulse, y = damages_pulse)) +
   geom_point() +
   geom_line() +
@@ -106,7 +105,7 @@ ggplot(data = warming, aes(x = warming_pulse, y = damages_pulse)) +
 
 ### 3) Difference in damages over time that arise from pulse:
 
-```{r fig.align = "center"}
+```{r fig.align = "center", warning=FALSE, message=FALSE}
 ggplot(data = warming, aes(x = year, y = dif_pulse)) +
   geom_point() +
   geom_line() +
@@ -119,7 +118,7 @@ ggplot(data = warming, aes(x = year, y = dif_pulse)) +
 
 ### 4) Difference in damages over time from the pulse per ton of CO2:
 
-```{r fig.align = "center"}
+```{r fig.align = "center", warning=FALSE, message=FALSE}
 ggplot(data = warming, aes(x = year, y = dif_pulse_perton)) +
   geom_point() +
   geom_line() +
@@ -134,7 +133,7 @@ ggplot(data = warming, aes(x = year, y = dif_pulse_perton)) +
 
 #### Use the equation: `V0 = Vt / (1 + r)^t`
 
-```{r fig.align = "center"}
+```{r fig.align = "center", warning=FALSE, message=FALSE}
 # Create vector with 5 different discount rates:
 rate <- c(0.01, 0.02, 0.03, 0.04, 0.05)
 
@@ -165,7 +164,7 @@ ggplot(data = SCC_table, aes(x = rate,
 
 ## Question 4:
 
-```{r fig.align = "center"}
+```{r fig.align = "center", warning=FALSE, message=FALSE}
 # r = p +ng
 ramsey = 0.021
 
@@ -206,7 +205,7 @@ The Ramsey Rule was used to find a discount rate of 0.021, and an associated SCC
 
 ### What is the expected present value of damages up to 2100 under Policy A?
 
-```{r}
+```{r, warning=FALSE, message=FALSE}
 # Create a damages model to convert warming data
 damages_model <- function(w){
   d <- quadratic.model$coefficients[["warming2"]]*w^2 + quadratic.model$coefficients[["warming"]]*w + 0
@@ -240,7 +239,7 @@ Under Policy A, the expected present value of damages up to 2100 is $3.04e+15.
 
 ### What is the expected present value of damages up to 2100 under Policy B?
 
-```{r}
+```{r, warning=FALSE, message=FALSE}
 # Create data series for policy B scenario (Warming will continue until 2050 as in the “baseline” dataset, and then will stabilize at 1.29 degrees and stay that way forever)
 warming <- warming %>% 
   mutate(warming_baseline_2050 = case_when(
@@ -261,13 +260,15 @@ Under Policy B, the expected present value of damages up to 2100 is $7.78e+14.
 
 ### If Policy A costs $0 and Policy B costs $X, how large could X be for it to still make economic sense to pursue Policy B instead of A?
 
-```{r}
+```{r, warning=FALSE, message=FALSE}
 # not sure.....
 X = policy_A_expected_value - policy_B_expected_value
 X
 ```
 
 ### How would your answer change if society were risk averse? (Qualitative answer)
+
+
 
 
 

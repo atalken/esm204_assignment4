@@ -267,7 +267,7 @@ X would have to be less than **$2.26507e+15** in order for it to still make econ
 
 ### How would your answer change if society were risk averse?
 
-If society was risk averse, then Policy B would be still be more attractive than Policy A because the expected value of Policy B is certain while the expected value of Policy A is uncertain (2 possible scenarios).
+If society were risk averse, then Policy B would be still be more attractive than Policy A because the expected value of Policy B is certain while the expected value of Policy A is uncertain (2 possible scenarios).
 
 
 

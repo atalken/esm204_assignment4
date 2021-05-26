@@ -261,12 +261,15 @@ Under Policy B, the expected present value of damages up to 2100 is $7.78e+14.
 ### If Policy A costs $0 and Policy B costs $X, how large could X be for it to still make economic sense to pursue Policy B instead of A?
 
 ```{r, warning=FALSE, message=FALSE}
-# not sure.....
 X = policy_A_expected_value - policy_B_expected_value
 X
 ```
 
+X would have to be less than 2.26507e^15 in order for it to still make economic sense to pursue Policy B instead of Policy A.
+
 ### How would your answer change if society were risk averse? (Qualitative answer)
+
+If society was risk averse, then Policy B would be still be more attractive because the expected value of both scenarios under Policy A is the same. 
 
 
 
